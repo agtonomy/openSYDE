@@ -562,18 +562,40 @@ else()
    message("OPENSYDE_CORE_SKIP_WINDOWS_TARGET not detected ... dragging in package")
 
    set (OPENSYDE_CORE_WINDOWS_TARGET_SOURCES
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLFile.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLTasks.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLTime.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLUtils.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLFile.hpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLTasks.hpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLTime.hpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TGLUtils.hpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglFile.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglTasks.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglTime.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglUtils.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglFile.hpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglTasks.hpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglTime.hpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows/TglUtils.hpp
    )
 
    set(OPENSYDE_CORE_WINDOWS_TARGET_INCLUDE_DIRECTORIES
       ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_windows
+   )
+endif()
+
+# linux target glue layer
+if(OPENSYDE_CORE_SKIP_LINUX_TARGET)
+   message("OPENSYDE_CORE_SKIP_LINUX_TARGET detected ... skipping package")
+else()
+   message("OPENSYDE_CORE_SKIP_LINUX_TARGET not detected ... dragging in package")
+
+   set (OPENSYDE_CORE_LINUX_TARGET_SOURCES
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglFile.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglTasks.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglTime.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglUtils.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglFile.hpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglTasks.hpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglTime.hpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux/TglUtils.hpp
+   )
+
+   set(OPENSYDE_CORE_LINUX_TARGET_INCLUDE_DIRECTORIES
+      ${CMAKE_CURRENT_SOURCE_DIR}/kefex_diaglib/tgl_linux
    )
 endif()
 
@@ -640,6 +662,7 @@ set(OPENSYDE_CORE_SOURCES
    ${OPENSYDE_CORE_PROTOCOL_DRIVERS_SOURCES}
    ${OPENSYDE_CORE_WINDOWS_DRIVERS_SOURCES}
    ${OPENSYDE_CORE_WINDOWS_TARGET_SOURCES}
+   ${OPENSYDE_CORE_LINUX_TARGET_SOURCES}
    ${OPENSYDE_CORE_PROTOCOL_LOGGING_SOURCES}
 )
 
@@ -653,6 +676,7 @@ set(OPENSYDE_CORE_INCLUDE_DIRECTORIES
    ${OPENSYDE_CORE_PROTOCOL_DRIVERS_INCLUDE_DIRECTORIES}
    ${OPENSYDE_CORE_WINDOWS_DRIVERS_INCLUDE_DIRECTORIES}
    ${OPENSYDE_CORE_WINDOWS_TARGET_INCLUDE_DIRECTORIES}
+   ${OPENSYDE_CORE_LINUX_TARGET_INCLUDE_DIRECTORIES}
    ${OPENSYDE_CORE_PROTOCOL_LOGGING_INCLUDE_DIRECTORIES}
 )
 

@@ -13,7 +13,11 @@
 #include "precomp_headers.hpp"
 
 #include <iostream>
-#include <getopt.h> //note: as we use getopt.h this application is not portable to all compilers
+#include <getopt.h>
+#ifndef _WIN32
+#include <unistd.h>
+#include <limits.h>
+#endif //note: as we use getopt.h this application is not portable to all compilers
 
 #include "stwtypes.hpp"
 #include "stwerrors.hpp"
@@ -23,10 +27,11 @@
 #include "C_OscSystemDefinition.hpp"
 #include "C_OscSystemDefinitionFiler.hpp"
 #include "C_OscLoggingHandler.hpp"
-#include "TGLFile.hpp"
+#include "TglFile.hpp"
 #include "C_OsyCodeExportBase.hpp"
 #include "C_OscUtils.hpp"
 #include "C_OscBinaryHash.hpp"
+#include "version_config.hpp"
 
 /* -- Used Namespaces ----------------------------------------------------------------------------------------------- */
 
@@ -78,19 +83,19 @@ void C_OsyCodeExportBase::m_PrintCommandLineParameters(void) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-/*! \brief   Get resource version number of a file as an C_SCLString
+/*! \brief   Get version number of the application as an C_SCLString
 
-   Extracts the windows version number of the specified file and returns it
-    in the commonly used STW format: "Vx.yyrz".
-   This function is Windows specific and needs to be replaced by another solution
-    when porting to a non-Windows system
+   Returns the version number in the commonly used STW format: "Vx.yyrz".
+   Windows: extracts the version resource of the specified file.
+   Other systems: uses the version configuration in version_config.hpp.
 
-   \param[in]   orc_FileName    file name to get version from
+   \param[in]   orc_FileName    file name to get version from (only used on Windows)
 
    \return
    string with version information ("V?.??r?" on error)
 */
 //----------------------------------------------------------------------------------------------------------------------
+#ifdef _WIN32
 C_SclString C_OsyCodeExportBase::h_GetApplicationVersion(const C_SclString & orc_FileName)
 {
    VS_FIXEDFILEINFO * pc_Info;
@@ -121,6 +126,16 @@ C_SclString C_OsyCodeExportBase::h_GetApplicationVersion(const C_SclString & orc
    }
    return c_Version;
 }
+#else
+C_SclString C_OsyCodeExportBase::h_GetApplicationVersion(const C_SclString & orc_FileName)
+{
+   C_SclString c_Version;
+
+   static_cast<void>(orc_FileName);
+   c_Version.PrintFormatted("V%d.%02dr%d", PROJECT_VERSION_MAJOR, PROJECT_VERSION_MINOR, PROJECT_VERSION_RELEASE);
+   return c_Version;
+}
+#endif
 
 //----------------------------------------------------------------------------------------------------------------------
 /*! \brief   Clean up
@@ -142,8 +157,19 @@ C_OsyCodeExportBase::~C_OsyCodeExportBase(void)
 C_OsyCodeExportBase::E_ResultCode C_OsyCodeExportBase::Init(void)
 {
    E_ResultCode e_Return = eRESULT_OK;
+#ifdef _WIN32
    char_t acn_ApplicationName[MAX_PATH + 1];
    uint32_t u32_Return = GetModuleFileNameA(NULL, &acn_ApplicationName[0], MAX_PATH + 1);
+#else
+   char_t acn_ApplicationName[PATH_MAX + 1];
+   const ssize_t sn_Length = readlink("/proc/self/exe", &acn_ApplicationName[0], PATH_MAX);
+   uint32_t u32_Return = (sn_Length > 0) ? static_cast<uint32_t>(sn_Length) : 0U;
+
+   if (u32_Return != 0U)
+   {
+      acn_ApplicationName[u32_Return] = '\0';
+   }
+#endif
 
    tgl_assert(u32_Return != 0);
 
@@ -153,7 +179,7 @@ C_OsyCodeExportBase::E_ResultCode C_OsyCodeExportBase::Init(void)
    mc_ExeVersion = h_GetApplicationVersion(mc_ExeName);
    mc_BinaryHash = stw::opensyde_core::C_OscBinaryHash::h_CreateBinaryHash();
 
-   mc_LogFileName = TglChangeFileExtension(mc_ExeName, ".log");
+   mc_LogFileName = TglChangeFileExtension(mc_ExeName, "") + ".log";
    mc_ListOfFilesFileName = TglChangeFileExtension(mc_ExeName, "") + "_file_list.txt";
 
    m_PrintBanner();
